@@ -12,10 +12,22 @@ class Piece:
 
 class Board:
     def __init__(self):
-
         self.bstruct = [[" " for i in range(8)] for j in range(8)]
         #self.bstruct = pd.DataFrame()
         self.set_up()
+        self.color = ""
+
+    def coordinate_conv(self, a):
+        letters = "ABCDEFGH"
+        letter_dict = {letter : (numb + 1)  for numb, letter in enumerate(letters)}
+        number_dict = {(numb + 1) : letter  for numb, letter in enumerate(letters)}
+
+        if isinstance(a, str) and (a.upper() in letters):
+            a = a.upper()
+            return number_dict[a]
+        elif isinstance(a, int) and (a in range(8)):
+            return letter_dict[a]
+
 
 
     def set_up(self):
@@ -50,18 +62,25 @@ class Board:
         self.bstruct[7][4] = Piece("King", "White")
         self.bstruct[7][3] = Piece("Queen", "White")
 
-    def process(self, player):
-        pass
-        
+    def process(self, color):
+        self.color = color
+
+        in_ = input(f"{self.color}: Where is the piece you want to move? ")
+        out_ = input(f"{self.color}: Where do you want to move it? ")
+
+        self.check_legal(int(in_[0]), int(in_[1]), int(out_[0]), int(out_[1]))
+
+
     
 
-    def print_as_pd(self):
-
+    def print_board(self):
+        print()
         df = pd.DataFrame(self.bstruct)
         print(df)
+        print()
 
 
-    def print_board(self):
+    def print_board_(self):
 
         s = ""
         b = ""
@@ -86,53 +105,88 @@ class Board:
         print(b)
 
     
-
-    def check_legal(self, from_1, from_2, to_1, to_2):
+    def check_legal(self, x_in, y_in, x_out, y_out):
 
         def illegal():
             print("Please enter a legal move. Try again.")
-            
+            self.process(self.color)
+        
+        def move():
+            self.bstruct[x_out][y_out] = self.bstruct[x_in][y_in]
+            self.bstruct[x_in][y_in] = " "
 
-        obj = self.bstruct[from_1][from_2]
+        def check_empty():
+            dx = (x_out - x_in > 0) - (x_out - x_in < 0)
+            dy = (y_out - y_in > 0) - (y_out - y_in < 0)
+            x_ = x_in + dx
+            y_ = y_in + dy
+
+            while (x_, y_) != (x_out, y_out):
+                if self.bstruct[x_][y_] != " ":
+                    illegal()
+                x_ += dx
+                y_ += dy
+    
+
+        obj = self.bstruct[x_in][y_in]
+
+        if obj.color != self.color:
+            illegal()
+
         if (isinstance(obj, Piece) and obj.type == "Pawn"):
-            pass
+            sign = 1
+            if obj.color == "White":
+                sign = -1
+                
+            if (x_out - x_in == 0) and (y_out - y_in == sign*1):
+                if self.bstruct[x_out][y_out] != " ":
+                    illegal()
+                else:
+                    move()
+                
 
         elif (isinstance(obj, Piece) and obj.type == "Tower"):
-            if (from_1 != to_1) and (from_2 != to_2):
+            if (x_in != x_out) and (y_in != y_out):
                 illegal()
             
 
 
 
         elif (isinstance(obj, Piece) and obj.type == "Knight"):
-
+            pass
         elif (isinstance(obj, Piece) and obj.type == "Bishop"):
-
+            pass
         elif (isinstance(obj, Piece) and obj.type == "King"):
-
+            pass
         elif (isinstance(obj, Piece) and obj.type == "Queen"):
+            pass
 
     def update(self):
         pass
 
+
+
 def main():
 
     board = Board()
+
+    print(
+    """
+    Let's play chess!
+
+    Please enter coordinates on the form: 12, for the 1 column and the second row.
+
+    White starts the game!
+
+    """)
     
 
     while True:
+        for color in ["White", "Black"]:
+            board.print_board()
+            board.process(color)
+            board.update()
 
-        player1 = input("Enter a square from and a square to")
-        board.process(player1)
-        board.check_legal()
-        board.update()
-        board.print_board()
-
-        player2 = input("Enter a square from and to")
-        board.process(player2)
-        board.check_legal()
-        board.update()
-        board.print_board()
 
 
 
