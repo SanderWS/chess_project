@@ -1,4 +1,4 @@
-from chess_pieces import Piece
+
 import pandas as pd
 
 
@@ -68,10 +68,17 @@ class Board:
         in_ = input(f"{self.color}: Where is the piece you want to move? ")
         out_ = input(f"{self.color}: Where do you want to move it? ")
 
-        self.check_legal(int(in_[0]), int(in_[1]), int(out_[0]), int(out_[1]))
+        self.x_in = int(in_[1])
+        self.y_in = int(in_[0])
+        self.x_out = int(out_[1])
+        self.y_out = int(out_[0])
+
+        if self.x_in == self.x_out and self.y_in == self.y_out:
+            self.illegal()
+
+        self.check_legal()
 
 
-    
 
     def print_board(self):
         print()
@@ -104,50 +111,80 @@ class Board:
 
         print(b)
 
+    def illegal(self):
+        print("Please enter a legal move. Try again.")
+        self.process(self.color)
+        return
     
-    def check_legal(self, x_in, y_in, x_out, y_out):
-
-        def illegal():
-            print("Please enter a legal move. Try again.")
-            self.process(self.color)
+    def check_legal(self):
         
         def move():
-            self.bstruct[x_out][y_out] = self.bstruct[x_in][y_in]
-            self.bstruct[x_in][y_in] = " "
+            self.bstruct[self.x_out][self.y_out] = self.bstruct[self.x_in][self.y_in]
+            self.bstruct[self.x_in][self.y_in] = " "
 
         def check_empty():
-            dx = (x_out - x_in > 0) - (x_out - x_in < 0)
-            dy = (y_out - y_in > 0) - (y_out - y_in < 0)
-            x_ = x_in + dx
-            y_ = y_in + dy
+            dx = (self.x_out - self.x_in > 0) - (self.x_out - self.x_in < 0)
+            dy = (self.y_out - self.y_in > 0) - (self.y_out - self.y_in < 0)
+            x_ = self.x_in + dx
+            y_ = self.y_in + dy
 
-            while (x_, y_) != (x_out, y_out):
+            while (x_, y_) != (self.x_out, self.y_out):
                 if self.bstruct[x_][y_] != " ":
-                    illegal()
+                    return False
                 x_ += dx
                 y_ += dy
-    
+            
+            if self.bstruct[self.x_out][self.y_out] == " ":
+                return True
+            
+            elif self.bstruct[self.x_out][self.y_out].color != self.color:
+                return True
+            
+            else:
+                return False
+            
 
-        obj = self.bstruct[x_in][y_in]
 
-        if obj.color != self.color:
-            illegal()
+        obj = self.bstruct[self.x_in][self.y_in]
 
-        if (isinstance(obj, Piece) and obj.type == "Pawn"):
+        if self.bstruct[self.x_in][self.y_in] == " ":
+            self.illegal()
+            return
+
+        elif obj.color != self.color :
+            self.illegal()
+            return
+        
+        elif (isinstance(obj, Piece) and obj.type == "Pawn"):
             sign = 1
             if obj.color == "White":
                 sign = -1
                 
-            if (x_out - x_in == 0) and (y_out - y_in == sign*1):
-                if self.bstruct[x_out][y_out] != " ":
-                    illegal()
+            if (self.x_out - self.x_in == sign*1) and (self.y_out - self.y_in == 0):
+                if self.bstruct[self.x_out][self.y_out] != " ":
+                    self.illegal()
+                    return
                 else:
                     move()
+                    return
+            else:
+                self.illegal()
+                return
                 
 
         elif (isinstance(obj, Piece) and obj.type == "Tower"):
-            if (x_in != x_out) and (y_in != y_out):
-                illegal()
+            if (self.x_in != self.x_out) and (self.y_in != self.y_out):
+                self.illegal()
+                return
+            
+            elif check_empty() == True:
+                move()
+                return
+            
+            else:
+                self.illegal()
+                return 
+            
             
 
 
