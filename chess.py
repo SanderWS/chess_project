@@ -1,11 +1,15 @@
-
+import pygame
 import pandas as pd
 
 
 class Piece:
-    def __init__(self, p_type, color):
+    def __init__(self, p_type, color, img):
         self.type = p_type
         self.color = color
+        self.piece_img = pygame.image.load(img)
+
+        if self.type == "Pawn":
+            self.first_move = True
 
     def __str__(self):
         return self.type
@@ -15,7 +19,12 @@ class Board:
         self.bstruct = [[" " for i in range(8)] for j in range(8)]
         #self.bstruct = pd.DataFrame()
         self.set_up()
-        self.color = ""
+        self.color = "White"
+        self.SQUARE_SIZE = 60
+        self.x_in = None
+        self.x_out = None
+        self.y_in = None
+        self.y_out = None
 
     def coordinate_conv(self, a):
         letters = "ABCDEFGH"
@@ -33,49 +42,47 @@ class Board:
     def set_up(self):
 
         for i in range(8):
-            self.bstruct[1][i] = Piece("Pawn", "Black")
-            self.bstruct[6][i] = Piece("Pawn", "White")
+            self.bstruct[1][i] = Piece("Pawn", "Black", "resources/b_pawn.png")
+            self.bstruct[6][i] = Piece("Pawn", "White", "resources/w_pawn.png")
 
         # Black Pieces
-        self.bstruct[0][0] = Piece("Tower", "Black")
-        self.bstruct[0][7] = Piece("Tower", "Black")
+        self.bstruct[0][0] = Piece("Rook", "Black", "resources/b_rook.png")
+        self.bstruct[0][7] = Piece("Rook", "Black", "resources/b_rook.png")
 
-        self.bstruct[0][1] = Piece("Knight", "Black")
-        self.bstruct[0][6] = Piece("Knight", "Black")
+        self.bstruct[0][1] = Piece("Knight", "Black", "resources/b_knight.png")
+        self.bstruct[0][6] = Piece("Knight", "Black", "resources/b_knight.png")
 
-        self.bstruct[0][2] = Piece("Bishop", "Black")
-        self.bstruct[0][5] = Piece("Bishop", "Black")
+        self.bstruct[0][2] = Piece("Bishop", "Black", "resources/b_bishop.png")
+        self.bstruct[0][5] = Piece("Bishop", "Black", "resources/b_bishop.png")
 
-        self.bstruct[0][4] = Piece("King", "Black")
-        self.bstruct[0][3] = Piece("Queen", "Black")
+        self.bstruct[0][4] = Piece("King", "Black", "resources/b_king.png")
+        self.bstruct[0][3] = Piece("Queen", "Black", "resources/b_queen.png")
 
         # White Pieces
-        self.bstruct[7][0] = Piece("Tower", "White")
-        self.bstruct[7][7] = Piece("Tower", "White")
+        self.bstruct[7][0] = Piece("Rook", "White", "resources/w_rook.png")
+        self.bstruct[7][7] = Piece("Rook", "White", "resources/w_rook.png")
 
-        self.bstruct[7][1] = Piece("Knight", "White")
-        self.bstruct[7][6] = Piece("Knight", "White")
+        self.bstruct[7][1] = Piece("Knight", "White", "resources/w_knight.png")
+        self.bstruct[7][6] = Piece("Knight", "White", "resources/w_knight.png")
 
-        self.bstruct[7][2] = Piece("Bishop", "White")
-        self.bstruct[7][5] = Piece("Bishop", "White")
+        self.bstruct[7][2] = Piece("Bishop", "White", "resources/w_bishop.png")
+        self.bstruct[7][5] = Piece("Bishop", "White", "resources/w_bishop.png")
 
-        self.bstruct[7][4] = Piece("King", "White")
-        self.bstruct[7][3] = Piece("Queen", "White")
+        self.bstruct[7][4] = Piece("King", "White", "resources/w_king.png")
+        self.bstruct[7][3] = Piece("Queen", "White", "resources/w_queen.png")
 
-    def process(self, color):
-        self.color = color
-
-        in_ = input(f"{self.color}: Where is the piece you want to move? ")
-        out_ = input(f"{self.color}: Where do you want to move it? ")
-
-        self.x_in = int(in_[1])
-        self.y_in = int(in_[0])
-        self.x_out = int(out_[1])
-        self.y_out = int(out_[0])
+    def process(self, x_in, y_in, x_out, y_out):
+        
+        self.x_in = x_in
+        self.x_out = x_out
+        self.y_in = y_in
+        self.y_out = y_out
 
         if self.x_in == self.x_out and self.y_in == self.y_out:
-            self.illegal()
-
+                print("if clause")
+                self.illegal()
+                return
+        
         self.check_legal()
 
 
@@ -112,15 +119,23 @@ class Board:
         print(b)
 
     def illegal(self):
-        print("Please enter a legal move. Try again.")
-        self.process(self.color)
-        return
+        print("illegal!")
     
     def check_legal(self):
-        
+
         def move():
+            if obj.type == "Pawn":
+                self.bstruct[self.x_in][self.y_in].first_move = False
+            
             self.bstruct[self.x_out][self.y_out] = self.bstruct[self.x_in][self.y_in]
             self.bstruct[self.x_in][self.y_in] = " "
+
+            if self.color == "White":
+                self.color = "Black"
+            else:
+                self.color = "White"
+            
+            
 
         def check_empty():
             dx = (self.x_out - self.x_in > 0) - (self.x_out - self.x_in < 0)
@@ -149,84 +164,120 @@ class Board:
 
         if self.bstruct[self.x_in][self.y_in] == " ":
             self.illegal()
-            return
+            return 
 
         elif obj.color != self.color :
             self.illegal()
-            return
+            return 
         
         elif (isinstance(obj, Piece) and obj.type == "Pawn"):
             sign = 1
             if obj.color == "White":
                 sign = -1
-                
-            if (self.x_out - self.x_in == sign*1) and (self.y_out - self.y_in == 0):
-                if self.bstruct[self.x_out][self.y_out] != " ":
-                    self.illegal()
-                    return
-                else:
+ 
+            if (self.bstruct[self.x_out][self.y_out] == " ") and (self.y_out - self.y_in == 0):
+                if (self.x_out - self.x_in == sign*1):
                     move()
-                    return
+
+                elif (self.x_out - self.x_in == sign*2) and (obj.first_move == True):
+                    if check_empty():
+                        move()
+
+                else:
+                    self.illegal()
             else:
                 self.illegal()
-                return
                 
 
-        elif (isinstance(obj, Piece) and obj.type == "Tower"):
+        elif (isinstance(obj, Piece) and obj.type == "Rook"):
             if (self.x_in != self.x_out) and (self.y_in != self.y_out):
                 self.illegal()
-                return
+                return False
             
-            elif check_empty() == True:
+            elif check_empty():
                 move()
-                return
+                return True
             
             else:
                 self.illegal()
-                return 
+                return False
             
             
-
-
-
         elif (isinstance(obj, Piece) and obj.type == "Knight"):
-            pass
+            if (abs(self.x_out - self.x_in) == 2) and (abs(self.y_out - self.y_in) == 1):
+                if self.bstruct[self.x_out][self.y_out] == " ":
+                    move()
+                    return True
+            
+                elif self.bstruct[self.x_out][self.y_out].color != self.color:
+                    move()
+                    return True
+                
+                else:
+                    self.illegal()
+                    return False
+
+            elif (abs(self.x_out - self.x_in) == 1) and (abs(self.y_out - self.y_in) == 2):
+                if self.bstruct[self.x_out][self.y_out] == " ":
+                    move()
+                    return True
+            
+                elif self.bstruct[self.x_out][self.y_out].color != self.color:
+                    move()
+                    return True
+                
+                else:
+                    self.illegal()
+                    return False
+            else:
+                self.illegal()
+                return False
+
+            
         elif (isinstance(obj, Piece) and obj.type == "Bishop"):
-            pass
+            if (self.x_out - self.x_in != 0) and (self.y_out - self.y_in != 0):
+                if (abs((self.x_out - self.x_in)/(self.y_out - self.y_in)) == 1) and check_empty():
+                    move()
+                    return True
+                    
+                else:
+                    self.illegal()
+                    return False
+            else:
+                self.illegal()
+                return False
+            
         elif (isinstance(obj, Piece) and obj.type == "King"):
-            pass
+            if (abs(self.x_out - self.x_in) < 2) and (abs(self.y_out - self.y_in) < 2):
+                if check_empty():
+                    move()
+                    return True
+                else:
+                    self.illegal()
+                    return False
+            else:
+                self.illegal()
+                return False
+                    
+                
         elif (isinstance(obj, Piece) and obj.type == "Queen"):
-            pass
+            if (self.x_out - self.x_in != 0) and (self.y_out - self.y_in != 0):
+                if (abs((self.x_out - self.x_in)/(self.y_out - self.y_in)) == 1) and check_empty():
+                    move()
+                    return True
+                    
+                else:
+                    self.illegal()
+                    return False
+                
+            elif (self.x_in == self.x_out) or (self.y_in == self.y_out) and check_empty():
+                move()
+                return True
+            
+            else:
+                self.illegal()
+                return False
+
 
     def update(self):
         pass
-
-
-
-def main():
-
-    board = Board()
-
-    print(
-    """
-    Let's play chess!
-
-    Please enter coordinates on the form: 12, for the 1 column and the second row.
-
-    White starts the game!
-
-    """)
-    
-
-    while True:
-        for color in ["White", "Black"]:
-            board.print_board()
-            board.process(color)
-            board.update()
-
-
-
-
-if __name__ == "__main__":
-    
-    main()
