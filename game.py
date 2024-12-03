@@ -10,10 +10,6 @@ SQUARE_SIZE = WIDTH // 8
 
 board_image = pygame.image.load("resources/board.png")
 
-# Scale piece images to fit on squares
-#for key in piece_images:
-#    piece_images[key] = pygame.transform.scale(piece_images[key], (SQUARE_SIZE, SQUARE_SIZE))
-
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess")
@@ -30,12 +26,12 @@ def draw_board_and_pieces():
                 screen.blit(piece.piece_img, (x, y))
 
 def display_end_screen(text):
-    screen.fill((0, 0, 0))  # Fill the screen with a black background
-    font = pygame.font.Font(None, 50)  # Use a default font with size 74
-    text = font.render(text, True, (255, 255, 255))  # Render the "Game Over" text in white
-    text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))  # Center the text
-    screen.blit(text, text_rect)  # Draw the text on the screen
-    pygame.display.flip()  # Update the display
+    screen.fill((0, 0, 0)) 
+    font = pygame.font.Font(None, 50)
+    text = font.render(text, True, (255, 255, 255)) 
+    text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    screen.blit(text, text_rect)
+    pygame.display.flip()
 
 
 
