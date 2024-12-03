@@ -26,6 +26,10 @@ class Board:
         self.x_out = None
         self.y_in = None
         self.y_out = None
+        self.message = ""
+
+    def __str__(self):
+        return self.message
 
     def coordinate_conv(self, a):
         letters = "ABCDEFGH"
@@ -47,7 +51,7 @@ class Board:
             self.color = "White"
 
 
-    def set_up_(self):
+    def set_up(self):
 
         for i in range(8):
             self.bstruct[1][i] = Piece("Pawn", "Black", "resources/b_pawn.png")
@@ -79,12 +83,6 @@ class Board:
         self.bstruct[7][4] = Piece("King", "White", "resources/w_king.png")
         self.bstruct[7][3] = Piece("Queen", "White", "resources/w_queen.png")
 
-    def set_up(self):
-        self.bstruct[0][4] = Piece("King", "Black", "resources/b_king.png")
-        self.bstruct[0][3] = Piece("Queen", "Black", "resources/b_queen.png")
-
-        self.bstruct[3][4] = Piece("King", "White", "resources/w_king.png")
-        self.bstruct[3][3] = Piece("Queen", "White", "resources/w_queen.png")
 
     def process(self, x_in, y_in, x_out, y_out):
         
@@ -95,24 +93,23 @@ class Board:
 
         if self.x_in == self.x_out and self.y_in == self.y_out:
             self.illegal()
-            return
+            return True
         
         elif self.check_legal() and not self.output_in_check():
             self.move()
-            if self.in_check():
-                print("check!")
 
             if not self.has_moves() and self.in_check():
-                print(f"{self.color} lost the game")
+                self.message = f"{self.opp_color} wins!"
                 return False
             
-            elif not self.has_moves() and not self.in_check():
-                print("It is a draw.")
+            elif not self.has_moves():
+                self.message = "Draw!"
                 return False
+            
+            return True
+        return True
                 
-            return
         
-
 
     def print_board(self):
         print()
@@ -142,10 +139,12 @@ class Board:
  
             if (self.bstruct[self.x_out][self.y_out] == " ") and (self.y_out - self.y_in == 0):
                 if (self.x_out - self.x_in == sign*1):
+                    obj.first_move = False
                     return True
 
                 elif (self.x_out - self.x_in == sign*2) and obj.first_move:
                     if self.check_empty():
+
                         return True
                 else:
                     self.illegal()
@@ -244,20 +243,19 @@ class Board:
     def in_check(self):
         temp_x_in, temp_y_in, temp_x_out, temp_y_out = self.x_in, self.y_in, self.x_out, self.y_out
         self.swap_color()
-        for j in range(8):
-            for i in range(8):
+        for i in range(8):
+            for j in range(8):
                 if isinstance(self.bstruct[i][j], Piece) and self.bstruct[i][j].type == "King":
                     if self.bstruct[i][j].color == self.opp_color:
                         self.x_out, self.y_out = i, j
 
                         break
         
-        for j in range(8):
-            for i in range(8):
+        for i in range(8):
+            for j in range(8):
                 if isinstance(self.bstruct[i][j], Piece) and self.bstruct[i][j].color == self.color:
                     self.x_in, self.y_in = i, j
                     if self.check_legal():
-                        print("activated!")
                         self.x_in, self.y_in, self.x_out, self.y_out = temp_x_in, temp_y_in, temp_x_out, temp_y_out
                         self.swap_color()
                         return True
@@ -286,13 +284,14 @@ class Board:
 
         return False
     
+    
     def has_moves(self):
 
         temp_x_in, temp_y_in, temp_x_out, temp_y_out = self.x_in, self.y_in, self.x_out, self.y_out
 
         for x_input in range(8):
             for y_input in range(8):
-                if isinstance(self.bstruct[x_input][y_input], Piece) and self.bstruct[x_input][y_input].color == self.opp_color:
+                if isinstance(self.bstruct[x_input][y_input], Piece) and self.bstruct[x_input][y_input].color == self.color:
                     self.x_in, self.y_in = x_input, y_input
                     for x_output in range(8):
                         for y_output in range(8):
@@ -303,6 +302,7 @@ class Board:
                             
         self.x_in, self.y_in, self.x_out, self.y_out = temp_x_in, temp_y_in, temp_x_out, temp_y_out
         return False
+    
 
     def reset_en_passant(self, color):
         for j in range(8):

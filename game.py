@@ -29,6 +29,15 @@ def draw_board_and_pieces():
                 y = row * SQUARE_SIZE
                 screen.blit(piece.piece_img, (x, y))
 
+def display_end_screen(text):
+    screen.fill((0, 0, 0))  # Fill the screen with a black background
+    font = pygame.font.Font(None, 50)  # Use a default font with size 74
+    text = font.render(text, True, (255, 255, 255))  # Render the "Game Over" text in white
+    text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))  # Center the text
+    screen.blit(text, text_rect)  # Draw the text on the screen
+    pygame.display.flip()  # Update the display
+
+
 
 board = Board()
 running = True
@@ -63,7 +72,7 @@ while running:
 
                 x_out = row
                 y_out = col
-                action = board.process(x_in, y_in, x_out, y_out)
+                running = board.process(x_in, y_in, x_out, y_out)
                 x_in = None
                 x_out = None
                 y_in = None
@@ -71,5 +80,8 @@ while running:
                 
         pygame.display.flip()
 
-
-
+while True:
+    display_end_screen(board.message)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
