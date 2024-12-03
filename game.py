@@ -8,7 +8,6 @@ WIDTH, HEIGHT = 480, 480
 SQUARE_SIZE = WIDTH // 8
 
 
-# Load images
 board_image = pygame.image.load("resources/board.png")
 
 # Scale piece images to fit on squares
@@ -20,14 +19,12 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess")
 
 def draw_board_and_pieces():
-    # Draw the board
     screen.blit(board_image, (0, 0))
 
-    # Draw the pieces
     for row in range(8):
         for col in range(8):
             piece = board.bstruct[row][col]
-            if piece != " ":  # If there's a piece at this position
+            if piece != " ":  
                 x = col * SQUARE_SIZE
                 y = row * SQUARE_SIZE
                 screen.blit(piece.piece_img, (x, y))
@@ -35,7 +32,7 @@ def draw_board_and_pieces():
 
 board = Board()
 running = True
-# Game loop
+
 
 x_in = None
 x_out = None
@@ -50,7 +47,6 @@ while running:
             break
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Get mouse position
             mouse_x, mouse_y = pygame.mouse.get_pos()
             col = mouse_x // SQUARE_SIZE
             row = mouse_y // SQUARE_SIZE
@@ -58,6 +54,10 @@ while running:
             if x_in is None and y_in is None:  
                 x_in = row
                 y_in = col
+                highlight_color = (255, 255, 0, 128)  # Yellow translucent color
+                highlight_surface = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
+                highlight_surface.fill(highlight_color)
+                screen.blit(highlight_surface, (col*SQUARE_SIZE, row*SQUARE_SIZE))
 
             elif x_out is None and y_out is None:
 

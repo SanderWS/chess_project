@@ -9,11 +9,13 @@ text = "12"
 
 #print(int(in_[0]), int(in_[1]), int(out_[0]), int(out_[1]))
 
-def f():
-    def g():
-        return return
-    g()
+class Peop:
+    def __init__(self, x):
+        self.x = x
+        self.func()
+    def func(self):
+        self.x = 2
 
-    return 2
+thing = Peop(1)
 
-print(f())
+print(thing.x)
