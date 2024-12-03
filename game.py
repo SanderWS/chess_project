@@ -37,6 +37,7 @@ def display_end_screen(text):
 
 board = Board()
 running = True
+end = True
 
 
 x_in = None
@@ -49,6 +50,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            end = False
             break
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -76,8 +78,10 @@ while running:
                 
         pygame.display.flip()
 
-while True:
+while end:
     display_end_screen(board.message)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            end = False
+            break
