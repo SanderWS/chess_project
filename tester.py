@@ -1,21 +1,14 @@
+import numpy as np
 
-letter_dict = {letter : numb  for numb, letter in enumerate("ABCDEFGH")}
-number_dict = {numb : letter  for numb, letter in enumerate("ABCDEFGH")}
+white_threat = np.full((8,8), 0b0000000000000100)
 
-text = "12"
 
-#in_ = input("o: Where is the piece you want to move? ")
-#out_ = input("o: Where do you want to move it? ")
+def is_bit_one(number: int, position: int) -> bool:
+    mask = 1 << (position)
+    return (number & mask) != 0
 
-#print(int(in_[0]), int(in_[1]), int(out_[0]), int(out_[1]))
+number = 1 << 4
 
-class Peop:
-    def __init__(self, x):
-        self.x = x
-        self.func()
-    def func(self):
-        self.x = 2
+mask = 0
 
-thing = Peop(1)
-
-print(thing.x)
+print(bin(number | mask))

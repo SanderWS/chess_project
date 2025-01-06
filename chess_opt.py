@@ -1,11 +1,15 @@
 import pygame
 import pandas as pd
+import numpy as np
 
 
 class Piece:
-    def __init__(self, p_type, color, img):
+    def __init__(self, position, p_type, color, img):
         self.type = p_type
         self.color = color
+        self.position = position
+
+        self.piece_id = 0
         self.en_passant = False
         self.piece_img = pygame.image.load(img)
         if self.type == "Pawn":
@@ -27,8 +31,6 @@ class Board:
         self.y_in = None
         self.y_out = None
         self.message = ""
-        self.move_rule = 0
-        
 
     def __str__(self):
         return self.message
@@ -338,7 +340,7 @@ class Board:
             
     def move(self):
             if self.bstruct[self.x_in][self.y_in].type == "Pawn":
-                if self.bstruct[self.x_in][self.y_in].first_move is True:
+                if self.bstruct[self.x_in][self.y_in].first_move == True:
                     self.bstruct[self.x_in][self.y_in].en_passant = True
                 self.bstruct[self.x_in][self.y_in].first_move = False
             
@@ -353,4 +355,66 @@ class Board:
                 self.color = "White"
 
             self.reset_en_passant(self.color)
+
+
+class Chess_game:
+
+    def __init__(self):
+        self.active_player = "white"
+
+        self.white_pieces = []
+        self.black_pieces = []
+
+        self.white_attack = np.full((8,8), 0b0)
+        self.black_attack = np.full((8,8), 0b0)
+
+
+        self.fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        self.set_up(self.fen)
+        
+    def set_up(self, fen):
+        rows = fen.split()[0].split('/')
+
+        piece_map = {
+            'p': 'pawn', 'r': 'rook', 'n': 'knight', 'b': 'bishop', 'q': 'queen', 'k': 'king',
+            'P': 'pawn', 'R': 'rook', 'N': 'knight', 'B': 'bishop', 'Q': 'queen', 'K': 'king',
+        }
+
+        for row_index, row in enumerate(rows):
+            col_index = 0
+            for char in row:
+                if char.isdigit():
+                    col_index += int(char)
+                else:
+                    position = np.array([row_index, col_index])
+                    piece_type = piece_map[char]
+                    image = f"{'w' if char.isupper() else 'b'}_{piece_type}"
+                    if char.isupper():
+                        color = "white"
+                        self.white_pieces.append(Piece(position, piece_type, color, image))
+                    else:
+                        color = "black"
+                        self.black_pieces.append(Piece(position, piece_type, color, image))
+                    col_index += 1
+
+        for list in [self.white_pieces, self.black_pieces]:
+            for index, piece in enumerate(list):
+                piece.piece_id = index
+
+     
+    def update_white_attack(self, piece):
+        
+    def update_black_attack(self):
+
+    def process(self):
+
+    def is_bit_one(number: int, position: int) -> bool:
+        mask = 1 << (position)
+        return (number & mask) != 0
+
+    
+
+    
+
+    
 
